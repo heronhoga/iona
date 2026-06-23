@@ -1,0 +1,25 @@
+# Binaries
+/bin/
+/dist/
+
+# Build output
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Coverage
+*.out
+coverage.out
+
+# IDE
+.vscode/
+.idea/
+
+# Environment files
+.env
+.env.*
