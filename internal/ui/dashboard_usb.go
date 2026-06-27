@@ -25,23 +25,43 @@ func (d *USBDashboard) USBView() fyne.CanvasObject {
 		return widget.NewLabel(err.Error())
 	}
 
-	d.list = widget.NewList(
-		func() int {
-			return len(d.devices)
-		},
-		func() fyne.CanvasObject {
-			return widget.NewLabel("")
-		},
-		func(id widget.ListItemID, item fyne.CanvasObject) {
-			item.(*widget.Label).SetText(d.devices[id].Product)
-		},
-	)
-
 	refresh := widget.NewButton("Refresh", func() {
 		if err := d.Refresh(); err != nil {
 			dialog.ShowError(err, fyne.CurrentApp().Driver().AllWindows()[0])
 		}
 	})
+
+	d.list = widget.NewList(
+		func() int {
+			return len(d.devices)
+		},
+		func() fyne.CanvasObject {
+			return container.NewVBox(
+				widget.NewLabel(""),
+				widget.NewLabel(""),
+				widget.NewLabel(""),
+			)
+		},
+		func(id widget.ListItemID, item fyne.CanvasObject) {
+			row := item.(*fyne.Container)
+
+			product := row.Objects[0].(*widget.Label)
+			manufacturer := row.Objects[1].(*widget.Label)
+			authorized := row.Objects[2].(*widget.Label)
+
+			device := d.devices[id]
+
+			product.SetText("USB Product: " + device.Product)
+			manufacturer.SetText("Manufacturer: " + device.Manufacturer)
+
+			isDeviceAuthorized := "NO"
+			if device.Authorized {
+				isDeviceAuthorized = "YES"
+			}
+
+			authorized.SetText("Authorized: " + isDeviceAuthorized)
+		},
+	)
 
 	return container.NewBorder(
 		refresh,

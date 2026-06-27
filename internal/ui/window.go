@@ -10,7 +10,8 @@ func Run() {
 	app := app.New()
 
 	w := app.NewWindow("IONA @1afrinata")
-	w.Resize(fyne.NewSize(600, 400))
+	w.Resize(fyne.NewSize(1000, 800))
+	w.CenterOnScreen()
 
 	manager := usb.NewLinuxManager()
 	dashboard := NewUSBDashboard(manager)
