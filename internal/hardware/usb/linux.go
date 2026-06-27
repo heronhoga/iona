@@ -1,7 +1,9 @@
 package usb
 
 import (
+	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -47,11 +49,26 @@ func (m *LinuxManager) List() ([]USBDevice, error) {
 
 	return devices, nil
 }
-
 func (m *LinuxManager) Enable(id string) error {
+	cmdStr := fmt.Sprintf("echo 1 > /sys/bus/usb/devices/%s/authorized", id)
+	cmd := exec.Command("sudo", "sh", "-c", cmdStr)
+	
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+	
 	return nil
 }
 
 func (m *LinuxManager) Disable(id string) error {
+	cmdStr := fmt.Sprintf("echo 0 > /sys/bus/usb/devices/%s/authorized", id)
+	cmd := exec.Command("sudo", "sh", "-c", cmdStr)
+	
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+	
 	return nil
 }

@@ -36,10 +36,19 @@ func (d *USBDashboard) USBView() fyne.CanvasObject {
 			return len(d.devices)
 		},
 		func() fyne.CanvasObject {
+			product := widget.NewLabel("")
+			manufacturer := widget.NewLabel("")
+			authorized := widget.NewLabel("")
+
+			enableBtn := widget.NewButton("Enable", nil)
+			disableBtn := widget.NewButton("Disable", nil)
+
 			return container.NewVBox(
-				widget.NewLabel(""),
-				widget.NewLabel(""),
-				widget.NewLabel(""),
+				product,
+				manufacturer,
+				authorized,
+				enableBtn,
+				disableBtn,
 			)
 		},
 		func(id widget.ListItemID, item fyne.CanvasObject) {
@@ -48,20 +57,43 @@ func (d *USBDashboard) USBView() fyne.CanvasObject {
 			product := row.Objects[0].(*widget.Label)
 			manufacturer := row.Objects[1].(*widget.Label)
 			authorized := row.Objects[2].(*widget.Label)
+			enableBtn := row.Objects[3].(*widget.Button)
+			disableBtn := row.Objects[4].(*widget.Button)
 
 			device := d.devices[id]
 
 			product.SetText("USB Product: " + device.Product)
 			manufacturer.SetText("Manufacturer: " + device.Manufacturer)
 
-			isDeviceAuthorized := "NO"
 			if device.Authorized {
-				isDeviceAuthorized = "YES"
-			}
+				authorized.SetText("Authorized: YES")
 
-			authorized.SetText("Authorized: " + isDeviceAuthorized)
+				enableBtn.Hide()
+				disableBtn.Show()
+
+				disableBtn.OnTapped = func() {
+					if err := d.manager.Disable(device.ID); err != nil {
+						dialog.ShowError(err, fyne.CurrentApp().Driver().AllWindows()[0])
+						return
+					}
+					d.Refresh()
+				}
+			} else {
+				authorized.SetText("Authorized: NO")
+
+				disableBtn.Hide()
+				enableBtn.Show()
+
+				enableBtn.OnTapped = func() {
+					if err := d.manager.Enable(device.ID); err != nil {
+						dialog.ShowError(err, fyne.CurrentApp().Driver().AllWindows()[0])
+						return
+					}
+					d.Refresh()
+				}
+			}
 		},
-	)
+)
 
 	return container.NewBorder(
 		refresh,
@@ -71,7 +103,6 @@ func (d *USBDashboard) USBView() fyne.CanvasObject {
 		d.list,
 	)
 }
-
 
 func (d *USBDashboard) Refresh() error {
 	devices, err := d.manager.List()
