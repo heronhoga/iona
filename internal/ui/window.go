@@ -14,7 +14,12 @@ func Run() {
 	w.CenterOnScreen()
 
 	manager := usb.NewLinuxManager()
-	dashboard := NewUSBDashboard(manager)
-	w.SetContent(dashboard.USBView())
+	usbDashboard := NewUSBDashboard(manager)
+
+	tabs := NewDashboard(
+		usbDashboard,
+	)
+	
+	w.SetContent(tabs)
 	w.ShowAndRun()
 }
